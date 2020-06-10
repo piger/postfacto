@@ -214,6 +214,18 @@ context 'Felicity', type: :feature, js: true, if: ENV['USE_MOCK_GOOGLE'] == 'tru
         end
       end
     end
+
+    describe 'share a retro', :focus => true do
+      before do
+        @retro_url = create_public_retro('Share Retro')
+        visit @retro_url
+      end
+
+      specify 'click on share shows the retro link' do
+        click_button 'Share'
+        expect(page).to have_content @retro_url
+      end
+    end
   end
 
   specify 'Auto facilitation journey' do

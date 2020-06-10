@@ -119,6 +119,23 @@ describe('RetroHeading', () => {
         expect(dom.find('.video-button')).not.toExist();
       });
     });
+
+    it('includes a button to share the retro url', () => {
+      const dom = createShallowRetroHeading({items: []});
+      expect(dom.find('.share-button')).toExist();
+    });
+
+    it('dispatches showDialog when the share button is clicked', () => {
+      const showDialog = jest.fn();
+      const dom = createShallowRetroHeading({items: []}, {showDialog});
+
+      dom.find('.share-button').click() // @todo double check if this the right way
+
+      expect(showDialog).toHaveBeenCalledWith({
+        title: 'Share this retro.',
+        message: '<some-url-here>',
+      });
+    });
   });
 
   describe('viewing an archived retro', () => {

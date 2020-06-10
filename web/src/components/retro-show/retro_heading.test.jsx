@@ -129,11 +129,13 @@ describe('RetroHeading', () => {
       const showDialog = jest.fn();
       const dom = createShallowRetroHeading({items: []}, {showDialog});
 
-      dom.find('.share-button').click() // @todo double check if this the right way
+      dom.find('.share-button').simulate('click')// @todo double check if this the right way
+
+      const retroUrl = window.location.href
 
       expect(showDialog).toHaveBeenCalledWith({
-        title: 'Share this retro.',
-        message: '<some-url-here>',
+        title: 'Invite others to this retro',
+        message: retroUrl,
       });
     });
   });

@@ -95,7 +95,7 @@ class ShowRetroPage extends React.Component {
     featureFlags: types.object.isRequired,
     dialog: types.shape({
       title: types.string,
-      message: types.string,
+      message: types.string
     }),
     environment: types.shape({
       isMobile640: types.bool,
@@ -140,11 +140,17 @@ class ShowRetroPage extends React.Component {
     this.state = {
       currentMobileCategory: 'happy',
       filtered_retro_archive: {},
+      modalRenderer: () => {}
     };
 
     this.handleArchiveRetroConfirmation = this.handleArchiveRetroConfirmation.bind(this);
     this.handleArchiveEmailPreferenceChange = this.handleArchiveEmailPreferenceChange.bind(this);
     this.moveToNextItem = this.moveToNextItem.bind(this);
+    this.handleShareRetro = this.handleShareRetro.bind(this);
+    this.handleArchiveRetro = this.handleArchiveRetro.bind(this);
+
+    this.renderArchiveConfirmationDialog = this.renderArchiveConfirmationDialog.bind(this)
+    this.renderShareRetroDialog = this.renderShareRetroDialog.bind(this)
   }
 
   componentWillMount() {
@@ -265,6 +271,51 @@ class ShowRetroPage extends React.Component {
     );
   }
 
+  handleArchiveRetro() {
+    this.props.showDialog({
+      title: 'You\'re about to archive this retro.',
+      message: 'Are you sure?',
+    });
+    this.setState({
+      modalRenderer: this.renderArchiveConfirmationDialog
+    })
+  }
+
+  handleShareRetro() {
+    this.props.showDialog({
+      title: 'Invite others to this retro',
+      message: window.location.href,
+    });
+    this.setState({
+      modalRenderer: this.renderShareRetroDialog
+    })
+  }
+
+  renderShareRetroDialog() {
+    const closeButton = (
+      <button
+        className="share-dialog__actions--close"
+        type="button"
+        onClick={this.props.hideDialog}
+      >
+        Close
+      </button>
+    );
+
+    return (
+      <Dialog
+        title="hello"
+        actions={[closeButton]}
+        open={!!this.props.dialog}
+        actionsContainerClassName="share-dialog__actions"
+        contentClassName="share-dialog"
+        onRequestClose={this.props.hideDialog}
+      >
+        <p>Test Test</p>
+      </Dialog>
+    );
+  }
+
   renderArchiveConfirmationDialog() {
     const title = this.props.dialog ? this.props.dialog.title : '';
     const message = this.props.dialog ? this.props.dialog.message : '';
@@ -328,13 +379,12 @@ class ShowRetroPage extends React.Component {
 
   renderMobile(retro) {
     const {config, retroId, archives} = this.props;
-
+    const {modalRenderer} = this.state;
     return (
       <span>
         <RetroWebsocket url={websocketUrl(config)} retro_id={retroId} websocketRetroDataReceived={this.props.websocketRetroDataReceived}/>
-        {this.renderArchiveConfirmationDialog()}
+        {this.props.dialog && modalRenderer()}
         <div className={archives ? 'mobile-display archived' : 'mobile-display'}>
-
           <RetroLegalBanner retroId={retroId} isPrivate={retro.is_private} config={config}/>
 
           <RetroHeading
@@ -347,6 +397,8 @@ class ShowRetroPage extends React.Component {
             requireRetroLogin={this.props.requireRetroLogin}
             showDialog={this.props.showDialog}
             signOut={this.props.signOut}
+            onShareRetro={this.handleShareRetro}
+            onArchiveRetro={this.handleArchiveRetro}
           />
 
           <div className="mobile-tabs">
@@ -385,6 +437,7 @@ class ShowRetroPage extends React.Component {
   }
 
   renderDesktop(retro) {
+    const {modalRenderer} = this.state
     const {config, retroId, archives} = this.props;
 
     let retroContainerClasses = 'full-height full-height-retro';
@@ -405,7 +458,7 @@ class ShowRetroPage extends React.Component {
       <HotKeys keyMap={keyMap} handlers={keyHandlers}>
         <span>
           <RetroWebsocket url={websocketUrl(config)} retro_id={retroId} websocketRetroDataReceived={this.props.websocketRetroDataReceived}/>
-          {this.renderArchiveConfirmationDialog()}
+          {this.props.dialog && modalRenderer()}
           <div className={retroContainerClasses}>
 
             <RetroLegalBanner retroId={retroId} isPrivate={retro.is_private} config={config}/>
@@ -420,6 +473,8 @@ class ShowRetroPage extends React.Component {
               requireRetroLogin={this.props.requireRetroLogin}
               showDialog={this.props.showDialog}
               signOut={this.props.signOut}
+              onShareRetro={this.handleShareRetro}
+              onArchiveRetro={this.handleArchiveRetro}
             />
             <div className="retro-item-list">
               <RetroColumn

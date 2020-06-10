@@ -33,6 +33,10 @@ import React from 'react';
 import {FlatButton, FontIcon, RaisedButton} from 'material-ui';
 import types from 'prop-types';
 import RetroMenu from '../shared/retro_menu';
+import {DEFAULT_TOGGLE_STYLE} from "../shared/constants";
+import Dialog from "material-ui/Dialog";
+import Toggle from "material-ui/Toggle";
+
 
 // not pure: uses window.localStorage to check login status
 export default class RetroHeading extends React.Component {
@@ -45,14 +49,19 @@ export default class RetroHeading extends React.Component {
     routeToRetroSettings: types.func.isRequired,
     requireRetroLogin: types.func.isRequired,
     showDialog: types.func.isRequired,
+    onShareRetro: types.func.isRequired,
+    onArchiveRetro: types.func.isRequired,
     signOut: types.func.isRequired,
   };
+
+  // 1. we completely decouple RetroHeading from the fact that we show a dialog
+  // 2. we modify showDialog to accept a renderer/component, not just title and message
+  // 3. modal manager
 
   constructor(props) {
     super(props);
 
     this.onArchivesButtonClicked = this.onArchivesButtonClicked.bind(this);
-    this.handleArchiveRetro = this.handleArchiveRetro.bind(this);
     this.handleViewArchives = this.handleViewArchives.bind(this);
     this.handleRetroSettings = this.handleRetroSettings.bind(this);
   }
@@ -80,13 +89,6 @@ export default class RetroHeading extends React.Component {
     );
   }
 
-  handleArchiveRetro() {
-    this.props.showDialog({
-      title: 'You\'re about to archive this retro.',
-      message: 'Are you sure?',
-    });
-  }
-
   handleViewArchives() {
     const {retroId} = this.props;
     this.props.routeToRetroArchives(retroId);
@@ -107,7 +109,7 @@ export default class RetroHeading extends React.Component {
     const items = [
       {
         title: 'Archive this retro',
-        callback: this.handleArchiveRetro,
+        callback: this.props.onArchiveRetro,
         isApplicable: !archives && retro.items && retro.items.length > 0,
         button: true,
       },
@@ -142,6 +144,13 @@ export default class RetroHeading extends React.Component {
             <h1>{retro.name}</h1>
           </div>
           <div className="retro-heading-buttons">
+            <RaisedButton
+              className="retro-heading-button share-button"
+              backgroundColor="#2574a9"
+              labelColor="#f8f8f8"
+              label="SHARE"
+              onClick={this.props.onShareRetro}
+            />
             {
               retro.video_link ? (
                 <RaisedButton

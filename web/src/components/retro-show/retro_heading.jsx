@@ -84,6 +84,7 @@ export default class RetroHeading extends React.Component {
     this.props.showDialog({
       title: 'You\'re about to archive this retro.',
       message: 'Are you sure?',
+      type: 'ARCHIVE_RETRO',
     });
   }
 

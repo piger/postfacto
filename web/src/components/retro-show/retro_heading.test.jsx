@@ -103,6 +103,7 @@ describe('RetroHeading', () => {
       expect(showDialog).toHaveBeenCalledWith({
         title: 'You\'re about to archive this retro.',
         message: 'Are you sure?',
+        type: 'ARCHIVE_RETRO',
       });
     });
 
